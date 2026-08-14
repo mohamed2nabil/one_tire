@@ -1,0 +1,171 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  TECHNICIAN
+  MARKETING
+  AUTHOR
+}
+
+enum ContentType {
+  ARTICLE
+  NEWS
+  SERVICE_UPDATE
+  TIRE_TIP
+  SAFETY_TIP
+  PROMOTION
+  LANDING_PAGE
+  SEO_PAGE
+  FAQ
+  KNOWLEDGE_BASE
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  firebaseUid String   @unique
+  name        String?
+  role        Role     @default(ADMIN)
+  contents    ContentItem[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("user")
+}
+
+model ServiceRequest {
+  id          Int      @id @default(autoincrement())
+  name        String
+  phone       String
+  location    String   // e.g., "Dammam", "Khobar", "Jubail"
+  serviceType String   // e.g., "Tire Change", "Battery", "TPMS"
+  status      String   @default("PENDING") // PENDING, ASSIGNED, COMPLETED
+  assignedTo  String?  // Name or UID of technician
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("servicerequest")
+}
+
+model ContentItem {
+  id              Int         @id @default(autoincrement())
+  type            ContentType @default(ARTICLE)
+  title           String
+  slug            String      @unique
+  content         String      @db.Text
+  coverImage      String?
+  gallery         Json?       // Array of image URLs
+  authorId        Int?
+  author          User?       @relation(fields: [authorId], references: [id])
+  tags            Json?       // Array of strings
+  categories      Json?       // Array of strings
+  status          String      @default("DRAFT") // DRAFT, PUBLISHED, SCHEDULED
+  featured        Boolean     @default(false)
+  relatedContent  Json?       // Array of related ContentItem IDs
+  readingTime     Int?        // in minutes
+  
+  // SEO & OpenGraph
+  metaTitle       String?
+  metaDescription String?     @db.Text
+  canonicalUrl    String?
+  ogImage         String?
+  aiMetadata      Json?       // AI generated summaries, keywords
+  internalLinks   Json?       // Array of URLs or IDs
+
+  publishedAt     DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@map("contentitem")
+}
+
+model MediaItem {
+  id            Int      @id @default(autoincrement())
+  url           String   @unique
+  fileName      String
+  fileSize      Int?
+  dimensions    String?  // e.g., "1920x1080"
+  mimeType      String?
+  altText       String?
+  caption       String?
+  tags          Json?    // Array of strings
+  categories    Json?    // Array of strings
+  blurDataUrl   String?  @db.Text // Base64 placeholder
+  dominantColor String?  // e.g., "#RRGGBB"
+  seoMetadata   Json?    // Object with SEO data
+  usageCount    Int      @default(0) // Track how many times it's used
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("mediaitem")
+}
+
+model Testimonial {
+  id         Int      @id @default(autoincrement())
+  clientName String
+  city       String?
+  text       String   @db.Text
+  rating     Int      @default(5)
+  isVisible  Boolean  @default(true)
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("testimonial")
+}
+
+model Brand {
+  id         Int      @id @default(autoincrement())
+  name       String
+  logoUrl    String
+  isVisible  Boolean  @default(true)
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("brand")
+}
+
+model ServiceItem {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String   @db.Text
+  iconName    String?
+  imageUrl    String?
+  isVisible   Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("serviceitem")
+}
+
+model SiteSetting {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique // e.g., "hero_title", "hero_image"
+  value     String?  @db.Text
+  jsonValue Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("sitesetting")
+}
+
+model ContactMessage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String
+  message   String   @db.Text
+  status    String   @default("UNREAD") // UNREAD, READ, RESPONDED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("contactmessage")
+}

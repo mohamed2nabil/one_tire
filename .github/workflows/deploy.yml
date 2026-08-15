@@ -38,7 +38,7 @@ jobs:
       - name: Upload to cPanel
         run: |
           echo "=== Uploading deploy.zip ==="
-          RESPONSE=$(curl -s -k -u "${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_PASSWORD }}" \
+          RESPONSE=$(curl -s -k -H "Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}" \
             "https://${{ secrets.FTP_SERVER }}:2083/execute/Fileman/upload_files" \
             -F "dir=/home/${{ secrets.CPANEL_USERNAME }}/apps/one-tire" \
             -F "file-1=@deploy.zip")
@@ -48,7 +48,7 @@ jobs:
       - name: Extract on Server
         run: |
           echo "=== Extracting deploy.zip ==="
-          RESPONSE=$(curl -s -k -u "${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_PASSWORD }}" \
+          RESPONSE=$(curl -s -k -H "Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}" \
             "https://${{ secrets.FTP_SERVER }}:2083/execute/Fileman/extract" \
             -d "archive_file=/home/${{ secrets.CPANEL_USERNAME }}/apps/one-tire/deploy.zip" \
             -d "directory=/home/${{ secrets.CPANEL_USERNAME }}/apps/one-tire")
@@ -57,6 +57,6 @@ jobs:
 
       - name: Cleanup zip
         run: |
-          curl -s -k -u "${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_PASSWORD }}" \
+          curl -s -k -H "Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}" \
             "https://${{ secrets.FTP_SERVER }}:2083/execute/Fileman/trash" \
             -d "files=/home/${{ secrets.CPANEL_USERNAME }}/apps/one-tire/deploy.zip"

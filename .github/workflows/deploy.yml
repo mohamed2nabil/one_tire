@@ -40,7 +40,18 @@ jobs:
           # إنشاء ملف PHP لفك الضغط بسهولة
           echo "<?php \$z = new ZipArchive; if (\$z->open('deploy.zip') === TRUE) { \$z->extractTo('./'); \$z->close(); echo 'OK'; unlink('unzip.php'); unlink('deploy.zip'); } else { echo 'Failed'; } ?>" > upload-dir/unzip.php
 
-      - name: FTP Upload via cURL
+      - name: FTP Upload via lftp
         run: |
-          curl --ftp-create-dirs -T upload-dir/deploy.zip ftp://${{ secrets.FTP_SERVER }}/ -u "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
-          curl --ftp-create-dirs -T upload-dir/unzip.php ftp://${{ secrets.FTP_SERVER }}/ -u "${{ secrets.FTP_USERNAME }}:${{ secrets.FTP_PASSWORD }}"
+          lftp -u "${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }}" ${{ secrets.FTP_SERVER }} <<EOF
+          set ftp:ssl-allow yes
+          set ftp:ssl-force no
+          set ftp:ssl-protect-data yes
+          set ssl:verify-certificate no
+          set ftp:passive-mode yes
+          set net:timeout 120
+          set net:max-retries 3
+          cd /apps/one-tire
+          put upload-dir/deploy.zip
+          put upload-dir/unzip.php
+          bye
+          EOF

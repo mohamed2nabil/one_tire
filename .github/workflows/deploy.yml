@@ -51,7 +51,7 @@ jobs:
           set ftp:passive-mode yes
           set net:timeout 120
           set net:max-retries 3
-          cd /apps/one-tire
+          cd apps/one-tire
           put upload-dir/deploy.zip
           put upload-dir/unzip.php
           bye

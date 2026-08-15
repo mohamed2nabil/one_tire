@@ -35,24 +35,10 @@ jobs:
           zip -r ../../deploy.zip .
           cd ../../
 
-      - name: Upload via WebDisk (WebDAV)
-        run: |
-          echo "=== Generating unzip.php ==="
-          echo "<?php \$z = new ZipArchive; if (\$z->open('deploy.zip') === TRUE) { \$z->extractTo('./'); \$z->close(); echo 'OK'; unlink('unzip.php'); unlink('deploy.zip'); } else { echo 'Failed'; } ?>" > unzip.php
-          
-          echo "=== Uploading deploy.zip via WebDisk ==="
-          HTTP_CODE=$(curl -s -k -o webdav_response.txt -w "%{http_code}" -u "${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_PASSWORD }}" -T deploy.zip "https://server11.hhost.host:2078/apps/one-tire/deploy.zip")
-          echo "HTTP Status: $HTTP_CODE"
-          cat webdav_response.txt
-          if [ "$HTTP_CODE" != "201" ] && [ "$HTTP_CODE" != "200" ] && [ "$HTTP_CODE" != "204" ]; then
-            echo "WebDisk Upload failed!"
-            exit 1
-          fi
-          
-          echo "=== Uploading unzip.php via WebDisk ==="
-          curl -s -k -u "${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_PASSWORD }}" -T unzip.php "https://server11.hhost.host:2078/apps/one-tire/unzip.php"
-          
-          echo "=== Triggering Unzip ==="
-          curl -k -s "https://one-tire.com/unzip.php"
-          echo "Deployment Complete!"
+      - name: Upload Artifact for Manual Deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: one-tire-build
+          path: deploy.zip
+          retention-days: 1
 

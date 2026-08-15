@@ -44,7 +44,7 @@ jobs:
           username: ${{ secrets.CPANEL_USERNAME }}
           key: ${{ secrets.CPANEL_SSH_KEY }}
           passphrase: ${{ secrets.CPANEL_SSH_PASSPHRASE }}
-          port: ${{ secrets.CPANEL_PORT }}
+          port: 21098
           timeout: 10m
           source: "deploy.zip"
           target: "/home/onetirec/apps/one-tire"
@@ -56,7 +56,7 @@ jobs:
           username: ${{ secrets.CPANEL_USERNAME }}
           key: ${{ secrets.CPANEL_SSH_KEY }}
           passphrase: ${{ secrets.CPANEL_SSH_PASSPHRASE }}
-          port: ${{ secrets.CPANEL_PORT }}
+          port: 21098
           script: |
             cd /home/onetirec/apps/one-tire
             unzip -o deploy.zip

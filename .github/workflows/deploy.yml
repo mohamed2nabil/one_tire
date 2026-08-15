@@ -21,7 +21,9 @@ jobs:
           version: 11
 
       - name: Install Dependencies
-        run: pnpm install
+        run: |
+          echo "node-linker=hoisted" > .npmrc
+          pnpm install
 
       - name: Build Project
         run: pnpm build
@@ -30,7 +32,6 @@ jobs:
         run: |
           cp -r public .next/standalone/
           cp -r .next/static .next/standalone/.next/
-          echo "async function start() { try { await import('./server.mjs'); } catch (err) { console.error('Failed to start server:', err); process.exit(1); } } start();" > .next/standalone/server.js
           cd .next/standalone
           zip -r ../../deploy.zip .
           cd ../../

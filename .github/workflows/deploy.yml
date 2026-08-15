@@ -31,27 +31,32 @@ jobs:
           cp -r public .next/standalone/
           cp -r .next/static .next/standalone/.next/
           echo "async function start() { try { await import('./server.mjs'); } catch (err) { console.error('Failed to start server:', err); process.exit(1); } } start();" > .next/standalone/server.js
-          # ضغط الملفات بدلاً من رفعها فرادى
           cd .next/standalone
           zip -r ../../deploy.zip .
           cd ../../
-          mkdir upload-dir
-          mv deploy.zip upload-dir/
-          # إنشاء ملف PHP لفك الضغط بسهولة
-          echo "<?php \$z = new ZipArchive; if (\$z->open('deploy.zip') === TRUE) { \$z->extractTo('./'); \$z->close(); echo 'OK'; unlink('unzip.php'); unlink('deploy.zip'); } else { echo 'Failed'; } ?>" > upload-dir/unzip.php
 
-      - name: Upload via cPanel API
+      - name: Upload to cPanel
         run: |
-          curl -k -u "${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_PASSWORD }}" \
+          echo "=== Uploading deploy.zip ==="
+          RESPONSE=$(curl -s -k -u "${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_PASSWORD }}" \
             "https://${{ secrets.FTP_SERVER }}:2083/execute/Fileman/upload_files" \
             -F "dir=/home/${{ secrets.CPANEL_USERNAME }}/apps/one-tire" \
-            -F "file-1=@upload-dir/deploy.zip"
-          curl -k -u "${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_PASSWORD }}" \
-            "https://${{ secrets.FTP_SERVER }}:2083/execute/Fileman/upload_files" \
-            -F "dir=/home/${{ secrets.CPANEL_USERNAME }}/apps/one-tire" \
-            -F "file-1=@upload-dir/unzip.php"
+            -F "file-1=@deploy.zip")
+          echo "$RESPONSE"
+          echo "$RESPONSE" | grep -q '"errors":null' || (echo "Upload failed!" && exit 1)
 
-      - name: Unzip on Server
+      - name: Extract on Server
         run: |
-          curl -k -s "https://one-tire.com/unzip.php"
+          echo "=== Extracting deploy.zip ==="
+          RESPONSE=$(curl -s -k -u "${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_PASSWORD }}" \
+            "https://${{ secrets.FTP_SERVER }}:2083/execute/Fileman/extract" \
+            -d "archive_file=/home/${{ secrets.CPANEL_USERNAME }}/apps/one-tire/deploy.zip" \
+            -d "directory=/home/${{ secrets.CPANEL_USERNAME }}/apps/one-tire")
+          echo "$RESPONSE"
+          echo "$RESPONSE" | grep -q '"errors":null' || (echo "Extract failed!" && exit 1)
 
+      - name: Cleanup zip
+        run: |
+          curl -s -k -u "${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_PASSWORD }}" \
+            "https://${{ secrets.FTP_SERVER }}:2083/execute/Fileman/trash" \
+            -d "files=/home/${{ secrets.CPANEL_USERNAME }}/apps/one-tire/deploy.zip"

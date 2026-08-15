@@ -1,4 +1,4 @@
-name: Deploy to cPanel via FTP
+name: Deploy to cPanel
 on:
   push:
     branches:
@@ -40,20 +40,18 @@ jobs:
           # إنشاء ملف PHP لفك الضغط بسهولة
           echo "<?php \$z = new ZipArchive; if (\$z->open('deploy.zip') === TRUE) { \$z->extractTo('./'); \$z->close(); echo 'OK'; unlink('unzip.php'); unlink('deploy.zip'); } else { echo 'Failed'; } ?>" > upload-dir/unzip.php
 
-      - name: FTP Upload via lftp
+      - name: Upload via cPanel API
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq lftp
-          lftp -u "${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }}" ${{ secrets.FTP_SERVER }} <<EOF
-          debug 3
-          set ftp:ssl-allow yes
-          set ftp:ssl-force no
-          set ftp:ssl-protect-data no
-          set ssl:verify-certificate no
-          set ftp:passive-mode yes
-          set net:timeout 60
-          set net:max-retries 1
-          cd /
-          put upload-dir/deploy.zip
-          put upload-dir/unzip.php
-          bye
-          EOF
+          curl -k -u "${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_PASSWORD }}" \
+            "https://${{ secrets.FTP_SERVER }}:2083/execute/Fileman/upload_files" \
+            -F "dir=/home/${{ secrets.CPANEL_USERNAME }}/apps/one-tire" \
+            -F "file-1=@upload-dir/deploy.zip"
+          curl -k -u "${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_PASSWORD }}" \
+            "https://${{ secrets.FTP_SERVER }}:2083/execute/Fileman/upload_files" \
+            -F "dir=/home/${{ secrets.CPANEL_USERNAME }}/apps/one-tire" \
+            -F "file-1=@upload-dir/unzip.php"
+
+      - name: Unzip on Server
+        run: |
+          curl -k -s "https://one-tire.com/unzip.php"
+

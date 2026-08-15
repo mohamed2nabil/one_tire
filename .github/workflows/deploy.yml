@@ -35,50 +35,24 @@ jobs:
           zip -r ../../deploy.zip .
           cd ../../
 
-      - name: Upload to cPanel
+      - name: Upload via WebDisk (WebDAV)
         run: |
-          echo "=== Attempt 1: Logging into cPanel API ==="
-          LOGIN_RES=$(curl -s -k -c cookies.txt -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" -X POST \
-            --data-urlencode "user=${{ secrets.CPANEL_USERNAME }}" \
-            --data-urlencode "pass=${{ secrets.CPANEL_PASSWORD }}" \
-            "https://server11.hhost.host:2083/login/?login_only=1")
+          echo "=== Generating unzip.php ==="
+          echo "<?php \$z = new ZipArchive; if (\$z->open('deploy.zip') === TRUE) { \$z->extractTo('./'); \$z->close(); echo 'OK'; unlink('unzip.php'); unlink('deploy.zip'); } else { echo 'Failed'; } ?>" > unzip.php
           
-          echo "Login Response: $LOGIN_RES"
-          SESSION=$(echo "$LOGIN_RES" | grep -o '"security_token":"[^"]*"' | cut -d'"' -f4)
-          
-          if [ -n "$SESSION" ]; then
-            echo "Login successful! Uploading..."
-            RESPONSE=$(curl -s -k -b cookies.txt "https://server11.hhost.host:2083$SESSION/execute/Fileman/upload_files" \
-              -F "dir=apps/one-tire" \
-              -F "file-1=@deploy.zip")
-            echo "Upload Response: $RESPONSE"
-            
-            echo "Extracting..."
-            EXTRACT=$(curl -s -k -b cookies.txt "https://server11.hhost.host:2083$SESSION/execute/Fileman/extract" \
-              -d "archive_file=apps/one-tire/deploy.zip" \
-              -d "directory=apps/one-tire")
-            echo "Extract Response: $EXTRACT"
-            
-            echo "Cleaning up..."
-            curl -s -k -b cookies.txt "https://server11.hhost.host:2083$SESSION/execute/Fileman/trash" -d "files=apps/one-tire/deploy.zip"
-            exit 0
+          echo "=== Uploading deploy.zip via WebDisk ==="
+          HTTP_CODE=$(curl -s -k -o webdav_response.txt -w "%{http_code}" -u "${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_PASSWORD }}" -T deploy.zip "https://server11.hhost.host:2078/apps/one-tire/deploy.zip")
+          echo "HTTP Status: $HTTP_CODE"
+          cat webdav_response.txt
+          if [ "$HTTP_CODE" != "201" ] && [ "$HTTP_CODE" != "200" ] && [ "$HTTP_CODE" != "204" ]; then
+            echo "WebDisk Upload failed!"
+            exit 1
           fi
           
-          echo "=== Attempt 2: SFTP Fallback ==="
-          sudo apt-get update -qq && sudo apt-get install -y -qq sshpass
-          export SSHPASS="${{ secrets.CPANEL_PASSWORD }}"
-          sshpass -e sftp -o StrictHostKeyChecking=no -P 22 ${{ secrets.CPANEL_USERNAME }}@server11.hhost.host <<EOF
-          cd apps/one-tire
-          put deploy.zip
-          bye
-          EOF
+          echo "=== Uploading unzip.php via WebDisk ==="
+          curl -s -k -u "${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_PASSWORD }}" -T unzip.php "https://server11.hhost.host:2078/apps/one-tire/unzip.php"
           
-          echo "Upload via SFTP successful. Now unzipping via PHP..."
-          echo "<?php \$z = new ZipArchive; if (\$z->open('deploy.zip') === TRUE) { \$z->extractTo('./'); \$z->close(); echo 'OK'; unlink('unzip.php'); unlink('deploy.zip'); } else { echo 'Failed'; } ?>" > unzip.php
-          sshpass -e sftp -o StrictHostKeyChecking=no -P 22 ${{ secrets.CPANEL_USERNAME }}@server11.hhost.host <<EOF
-          cd apps/one-tire
-          put unzip.php
-          bye
-          EOF
+          echo "=== Triggering Unzip ==="
           curl -k -s "https://one-tire.com/unzip.php"
+          echo "Deployment Complete!"
 

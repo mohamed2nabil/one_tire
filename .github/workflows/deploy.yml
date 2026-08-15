@@ -44,13 +44,14 @@ jobs:
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq lftp
           lftp -u "${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }}" ${{ secrets.FTP_SERVER }} <<EOF
+          debug 3
           set ftp:ssl-allow yes
           set ftp:ssl-force no
-          set ftp:ssl-protect-data yes
+          set ftp:ssl-protect-data no
           set ssl:verify-certificate no
           set ftp:passive-mode yes
-          set net:timeout 120
-          set net:max-retries 3
+          set net:timeout 60
+          set net:max-retries 1
           cd /
           put upload-dir/deploy.zip
           put upload-dir/unzip.php

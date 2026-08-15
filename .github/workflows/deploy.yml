@@ -21,7 +21,7 @@ jobs:
           version: 11
 
       - name: Install Dependencies
-        run: pnpm install--config.ignore-scripts=false
+        run: pnpm install
 
       - name: Build Project
         run: pnpm build

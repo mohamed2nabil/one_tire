@@ -31,6 +31,14 @@ jobs:
           cp -r public .next/standalone/
           cp -r .next/static .next/standalone/.next/
           echo "async function start() { try { await import('./server.mjs'); } catch (err) { console.error('Failed to start server:', err); process.exit(1); } } start();" > .next/standalone/server.js
+          # ضغط الملفات بدلاً من رفعها فرادى
+          cd .next/standalone
+          zip -r ../../deploy.zip .
+          cd ../../
+          mkdir upload-dir
+          mv deploy.zip upload-dir/
+          # إنشاء ملف PHP لفك الضغط بسهولة
+          echo "<?php \$z = new ZipArchive; if (\$z->open('deploy.zip') === TRUE) { \$z->extractTo('./'); \$z->close(); echo 'OK'; unlink('unzip.php'); unlink('deploy.zip'); } else { echo 'Failed'; } ?>" > upload-dir/unzip.php
 
       - name: FTP Deploy
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -38,7 +46,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: .next/standalone/
+          local-dir: upload-dir/
           timeout: 300000
           port: 21
           protocol: ftp

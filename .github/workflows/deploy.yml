@@ -48,9 +48,6 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: upload-dir/
           timeout: 300000
-          port: 21
-          protocol: ftp
-          security: loose
           exclude: |
             **/.git*
             **/.git*/**

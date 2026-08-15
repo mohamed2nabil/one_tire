@@ -15,12 +15,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          
       - name: Install pnpm
         uses: pnpm/action-setup@v3
         with:
           version: 11
 
-      - name: Install Dependencies
+      - name: Configure pnpm and Install Dependencies
         run: |
           echo "node-linker=hoisted" > .npmrc
           pnpm install
@@ -36,10 +37,26 @@ jobs:
           zip -r ../../deploy.zip .
           cd ../../
 
-      - name: Upload Artifact for Manual Deployment
-        uses: actions/upload-artifact@v4
+      - name: Upload zip to cPanel via SCP
+        uses: appleboy/scp-action@v0.1.7
         with:
-          name: one-tire-build
-          path: deploy.zip
-          retention-days: 1
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USERNAME }}
+          key: ${{ secrets.CPANEL_SSH_KEY }}
+          port: ${{ secrets.CPANEL_PORT }}
+          source: "deploy.zip"
+          target: "/home/onetirec/apps/one-tire"
 
+      - name: Unzip and restart app via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USERNAME }}
+          key: ${{ secrets.CPANEL_SSH_KEY }}
+          port: ${{ secrets.CPANEL_PORT }}
+          script: |
+            cd /home/onetirec/apps/one-tire
+            unzip -o deploy.zip
+            rm deploy.zip
+            mkdir -p tmp
+            touch tmp/restart.txt

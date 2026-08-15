@@ -38,10 +38,10 @@ jobs:
       - name: Upload to cPanel
         run: |
           echo "=== Logging into cPanel ==="
-          LOGIN_RES=$(curl -s -k -X POST \
+          LOGIN_RES=$(curl -s -k -c cookies.txt -X POST \
             --data-urlencode "user=${{ secrets.CPANEL_USERNAME }}" \
             --data-urlencode "pass=${{ secrets.CPANEL_PASSWORD }}" \
-            "https://${{ secrets.FTP_SERVER }}:2083/login/")
+            "https://${{ secrets.FTP_SERVER }}:2083/login/?login_only=1")
           
           SESSION=$(echo "$LOGIN_RES" | grep -o '"security_token":"[^"]*"' | cut -d'"' -f4)
           
@@ -51,7 +51,7 @@ jobs:
           fi
           
           echo "=== Uploading deploy.zip ==="
-          RESPONSE=$(curl -s -k "https://${{ secrets.FTP_SERVER }}:2083$SESSION/execute/Fileman/upload_files" \
+          RESPONSE=$(curl -s -k -b cookies.txt "https://${{ secrets.FTP_SERVER }}:2083$SESSION/execute/Fileman/upload_files" \
             -F "dir=apps/one-tire" \
             -F "file-1=@deploy.zip")
           echo "$RESPONSE"
@@ -60,11 +60,14 @@ jobs:
       - name: Extract on Server
         run: |
           echo "=== Logging into cPanel ==="
-          LOGIN_RES=$(curl -s -k -X POST --data-urlencode "user=${{ secrets.CPANEL_USERNAME }}" --data-urlencode "pass=${{ secrets.CPANEL_PASSWORD }}" "https://${{ secrets.FTP_SERVER }}:2083/login/")
+          LOGIN_RES=$(curl -s -k -c cookies.txt -X POST \
+            --data-urlencode "user=${{ secrets.CPANEL_USERNAME }}" \
+            --data-urlencode "pass=${{ secrets.CPANEL_PASSWORD }}" \
+            "https://${{ secrets.FTP_SERVER }}:2083/login/?login_only=1")
           SESSION=$(echo "$LOGIN_RES" | grep -o '"security_token":"[^"]*"' | cut -d'"' -f4)
           
           echo "=== Extracting deploy.zip ==="
-          RESPONSE=$(curl -s -k "https://${{ secrets.FTP_SERVER }}:2083$SESSION/execute/Fileman/extract" \
+          RESPONSE=$(curl -s -k -b cookies.txt "https://${{ secrets.FTP_SERVER }}:2083$SESSION/execute/Fileman/extract" \
             -d "archive_file=apps/one-tire/deploy.zip" \
             -d "directory=apps/one-tire")
           echo "$RESPONSE"
@@ -72,8 +75,11 @@ jobs:
 
       - name: Cleanup zip
         run: |
-          LOGIN_RES=$(curl -s -k -X POST --data-urlencode "user=${{ secrets.CPANEL_USERNAME }}" --data-urlencode "pass=${{ secrets.CPANEL_PASSWORD }}" "https://${{ secrets.FTP_SERVER }}:2083/login/")
+          LOGIN_RES=$(curl -s -k -c cookies.txt -X POST \
+            --data-urlencode "user=${{ secrets.CPANEL_USERNAME }}" \
+            --data-urlencode "pass=${{ secrets.CPANEL_PASSWORD }}" \
+            "https://${{ secrets.FTP_SERVER }}:2083/login/?login_only=1")
           SESSION=$(echo "$LOGIN_RES" | grep -o '"security_token":"[^"]*"' | cut -d'"' -f4)
           
-          curl -s -k "https://${{ secrets.FTP_SERVER }}:2083$SESSION/execute/Fileman/trash" \
+          curl -s -k -b cookies.txt "https://${{ secrets.FTP_SERVER }}:2083$SESSION/execute/Fileman/trash" \
             -d "files=apps/one-tire/deploy.zip"

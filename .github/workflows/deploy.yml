@@ -37,26 +37,43 @@ jobs:
 
       - name: Upload to cPanel
         run: |
+          echo "=== Logging into cPanel ==="
+          LOGIN_RES=$(curl -s -k -X POST \
+            --data-urlencode "user=${{ secrets.CPANEL_USERNAME }}" \
+            --data-urlencode "pass=${{ secrets.CPANEL_PASSWORD }}" \
+            "https://${{ secrets.FTP_SERVER }}:2083/login/")
+          
+          SESSION=$(echo "$LOGIN_RES" | grep -o '"security_token":"[^"]*"' | cut -d'"' -f4)
+          
+          if [ -z "$SESSION" ]; then
+            echo "Login failed! Please check CPANEL_USERNAME and CPANEL_PASSWORD"
+            exit 1
+          fi
+          
           echo "=== Uploading deploy.zip ==="
-          RESPONSE=$(curl -s -k -H "Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}" \
-            "https://${{ secrets.FTP_SERVER }}:2083/execute/Fileman/upload_files" \
-            -F "dir=/home/${{ secrets.CPANEL_USERNAME }}/apps/one-tire" \
+          RESPONSE=$(curl -s -k "https://${{ secrets.FTP_SERVER }}:2083$SESSION/execute/Fileman/upload_files" \
+            -F "dir=apps/one-tire" \
             -F "file-1=@deploy.zip")
           echo "$RESPONSE"
           echo "$RESPONSE" | grep -q '"errors":null' || (echo "Upload failed!" && exit 1)
 
       - name: Extract on Server
         run: |
+          echo "=== Logging into cPanel ==="
+          LOGIN_RES=$(curl -s -k -X POST --data-urlencode "user=${{ secrets.CPANEL_USERNAME }}" --data-urlencode "pass=${{ secrets.CPANEL_PASSWORD }}" "https://${{ secrets.FTP_SERVER }}:2083/login/")
+          SESSION=$(echo "$LOGIN_RES" | grep -o '"security_token":"[^"]*"' | cut -d'"' -f4)
+          
           echo "=== Extracting deploy.zip ==="
-          RESPONSE=$(curl -s -k -H "Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}" \
-            "https://${{ secrets.FTP_SERVER }}:2083/execute/Fileman/extract" \
-            -d "archive_file=/home/${{ secrets.CPANEL_USERNAME }}/apps/one-tire/deploy.zip" \
-            -d "directory=/home/${{ secrets.CPANEL_USERNAME }}/apps/one-tire")
+          RESPONSE=$(curl -s -k "https://${{ secrets.FTP_SERVER }}:2083$SESSION/execute/Fileman/extract" \
+            -d "archive_file=apps/one-tire/deploy.zip" \
+            -d "directory=apps/one-tire")
           echo "$RESPONSE"
           echo "$RESPONSE" | grep -q '"errors":null' || (echo "Extract failed!" && exit 1)
 
       - name: Cleanup zip
         run: |
-          curl -s -k -H "Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_API_TOKEN }}" \
-            "https://${{ secrets.FTP_SERVER }}:2083/execute/Fileman/trash" \
-            -d "files=/home/${{ secrets.CPANEL_USERNAME }}/apps/one-tire/deploy.zip"
+          LOGIN_RES=$(curl -s -k -X POST --data-urlencode "user=${{ secrets.CPANEL_USERNAME }}" --data-urlencode "pass=${{ secrets.CPANEL_PASSWORD }}" "https://${{ secrets.FTP_SERVER }}:2083/login/")
+          SESSION=$(echo "$LOGIN_RES" | grep -o '"security_token":"[^"]*"' | cut -d'"' -f4)
+          
+          curl -s -k "https://${{ secrets.FTP_SERVER }}:2083$SESSION/execute/Fileman/trash" \
+            -d "files=apps/one-tire/deploy.zip"

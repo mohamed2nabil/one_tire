@@ -39,6 +39,10 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: .next/standalone/
+          timeout: 300000
+          port: 21
+          protocol: ftp
+          security: loose
           exclude: |
             **/.git*
             **/.git*/**

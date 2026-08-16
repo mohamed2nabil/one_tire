@@ -21,10 +21,15 @@ jobs:
         with:
           version: 11
 
-      - name: Configure pnpm and Install Dependencies
+      - name: Configure pnpm for standalone build
         run: |
           echo "node-linker=hoisted" > .npmrc
-          pnpm install
+          echo "symlink=false" >> .npmrc
+          echo "shamefully-hoist=true" >> .npmrc
+          echo "public-hoist-pattern=*" >> .npmrc
+
+      - name: Install Dependencies
+        run: pnpm install
 
       - name: Build Project
         run: pnpm build

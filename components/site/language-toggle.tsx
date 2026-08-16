@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
@@ -25,7 +25,7 @@ export function LanguageToggle({ currentLocale }: LanguageToggleProps) {
     <Button
       variant="ghost"
       size="sm"
-      className="gap-2 font-medium"
+      className="gap-2 font-medium min-h-[44px]"
       onClick={toggleLanguage}
     >
       <Globe className="size-4" />

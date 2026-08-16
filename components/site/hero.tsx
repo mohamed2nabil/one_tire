@@ -1,5 +1,6 @@
 import { ArrowLeft, Phone } from 'lucide-react'
-import { HeroSequence } from './hero-sequence'
+import dynamic from 'next/dynamic'
+const HeroSequence = dynamic(() => import('./hero-sequence').then((mod) => mod.HeroSequence), { ssr: false })
 import { site } from '@/lib/site'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'

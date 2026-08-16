@@ -10,7 +10,7 @@ import { dictionaries, Locale } from '@/lib/dictionaries'
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin)
 
-const ROUTE = 'M 120 360 C 260 300, 320 200, 430 180 S 640 150, 690 110'
+const ROUTE = 'M 60 420 C 100 390, 140 370, 180 360 S 320 200, 430 180 S 640 150, 690 110'
 
 export function Coverage({ locale = 'ar', settings }: { locale?: Locale, settings?: Record<string, string> }) {
   const dict = dictionaries[locale].coverage
@@ -22,7 +22,7 @@ export function Coverage({ locale = 'ar', settings }: { locale?: Locale, setting
   useEffect(() => {
     const el = root.current
     if (!el) return
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches || window.matchMedia('(max-width: 768px)').matches
 
     const ctx = gsap.context(() => {
       const path = el.querySelector<SVGPathElement>('.route-line')
@@ -128,9 +128,10 @@ export function Coverage({ locale = 'ar', settings }: { locale?: Locale, setting
 
             {dict.cities.map((c, index) => {
               const coords = [
-                { x: 120, y: 360 },
-                { x: 430, y: 180 },
-                { x: 690, y: 110 },
+                { x: 60, y: 420 },   // الرياض
+                { x: 180, y: 360 },  // الدمام
+                { x: 430, y: 180 },  // الخبر
+                { x: 690, y: 110 },  // الجبيل
               ]
               const { x, y } = coords[index]
               return (

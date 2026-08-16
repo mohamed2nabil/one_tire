@@ -1,10 +1,11 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useReducedMotion } from '@/hooks/use-reduced-motion'
 import { IntroLoader } from './intro-loader'
+import Image from 'next/image'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -14,10 +15,12 @@ const PATH_PREFIX = '/Vehicle_driving_forward_smoothly_1080p_202607230031_frames
 export function HeroSequence() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const reducedMotion = useReducedMotion()
+  const isMobileDev = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
+  const shouldSkipSequence = reducedMotion || isMobileDev
   const [isReady, setIsReady] = useState(false)
   
   useEffect(() => {
-    if (reducedMotion) {
+    if (shouldSkipSequence) {
       setIsReady(true)
       return
     }
@@ -138,17 +141,20 @@ export function HeroSequence() {
       animation.kill()
       animation.scrollTrigger?.kill()
     }
-  }, [reducedMotion])
+  }, [shouldSkipSequence])
 
   return (
     <>
       <IntroLoader isReady={isReady} />
       
-      {reducedMotion ? (
+      {shouldSkipSequence ? (
         <div className="absolute inset-0 z-0 h-full w-full overflow-hidden bg-[#111]">
-          <img
+          <Image
             src={`${PATH_PREFIX}001.jpg`}
             alt="One Tire Van Mobile Service"
+            priority
+            width={1920}
+            height={1080}
             className="h-full w-full object-cover opacity-60"
           />
         </div>

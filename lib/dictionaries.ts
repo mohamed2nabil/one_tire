@@ -82,6 +82,7 @@ export const dictionaries = {
       desc: 'سيارتنا المتنقلة تنتقل بين المدن الكبرى في المنطقة الشرقية لتصل إليك أينما كنت، في أي وقت.',
       status: 'متاح الآن',
       cities: [
+        { name: 'الرياض', note: 'تغطية شاملة للعاصمة' },
         { name: 'الدمام', note: 'المركز الرئيسي' },
         { name: 'الخبر', note: 'تغطية كاملة' },
         { name: 'الجبيل', note: 'وصول سريع' },
@@ -245,6 +246,7 @@ export const dictionaries = {
       desc: 'Our mobile service units travel between the major cities in the Eastern Province to reach you wherever you are, anytime.',
       status: 'Available Now',
       cities: [
+        { name: 'Riyadh', note: 'Full Capital Coverage' },
         { name: 'Dammam', note: 'Main Hub' },
         { name: 'Khobar', note: 'Full Coverage' },
         { name: 'Jubail', note: 'Fast Response' },

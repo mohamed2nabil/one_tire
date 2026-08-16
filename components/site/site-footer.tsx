@@ -42,7 +42,7 @@ export function SiteFooter({ locale = 'ar' }: { locale?: Locale }) {
             <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
               {nav.map((n) => (
                 <li key={n.id}>
-                  <a href={n.href} className="transition-colors hover:text-foreground">
+                  <a href={n.href} className="inline-flex min-h-[44px] items-center py-2 transition-colors hover:text-foreground">
                     {navDict[n.id as keyof typeof navDict] || n.label}
                   </a>
                 </li>
@@ -54,7 +54,7 @@ export function SiteFooter({ locale = 'ar' }: { locale?: Locale }) {
             <p className="text-base font-extrabold">{dict.coverage}</p>
             <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
               {dict.cities.map((c) => (
-                <li key={c} className="flex items-center gap-2">
+                <li key={c} className="flex min-h-[44px] items-center gap-2 py-2">
                   <MapPin className="size-4 text-primary" />
                   {c}
                 </li>

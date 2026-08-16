@@ -11,12 +11,19 @@ export async function Services({ locale = 'ar' }: { locale?: Locale }) {
   const dict = dictionaries[locale].services
   const settings = await getCachedSettings();
   
+  const FALLBACK_SERVICES = [
+    { id: 1, title: 'بنشر متنقل', desc: 'خدمة بنشر وإصلاح إطارات سريعة.' },
+    { id: 2, title: 'مساعدة على الطريق', desc: 'إنقاذ ومساعدة فورية أينما كنت.' },
+  ];
+
   let dbServices: any[] = [];
   try {
     dbServices = await db.serviceItem.findMany({ where: { isVisible: true }, orderBy: { order: 'asc' } });
-  } catch (e) {}
+  } catch (e) {
+    console.error('[Services] DB query failed, using fallback:', e);
+  }
 
-  const activeServices = dbServices.length > 0 ? dbServices : dict.items;
+  const activeServices = dbServices.length > 0 ? dbServices : (dict.items ?? FALLBACK_SERVICES);
   const title = locale === 'ar' ? (settings.srv_title_ar || dict.title) : (settings.srv_title_en || dict.title);
 
 
@@ -60,7 +67,7 @@ export async function Services({ locale = 'ar' }: { locale?: Locale }) {
                   href={site.whatsapp}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="relative mt-6 inline-flex items-center gap-2 text-sm font-bold text-primary"
+                  className="relative mt-6 inline-flex min-h-[44px] items-center gap-2 py-2 text-sm font-bold text-primary"
                 >
                   {dict.cta}
                   <ArrowLeft className={cn("size-4 transition-transform group-hover:-translate-x-1", locale === 'en' && "rotate-180")} />

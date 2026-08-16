@@ -33,6 +33,7 @@ jobs:
         run: |
           cp -r public .next/standalone/
           cp -r .next/static .next/standalone/.next/
+          mkdir -p .next/standalone/node_modules
           cp -rL node_modules/@swc .next/standalone/node_modules/ || true
           cd .next/standalone
           zip -r ../../deploy.zip .

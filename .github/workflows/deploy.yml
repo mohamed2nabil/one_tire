@@ -16,30 +16,19 @@ jobs:
         with:
           node-version: '22'
           
-      - name: Install pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 11
-
-      - name: Configure pnpm for standalone build
-        run: |
-          echo "node-linker=hoisted" > .npmrc
-          echo "symlink=false" >> .npmrc
-          echo "shamefully-hoist=true" >> .npmrc
-          echo "public-hoist-pattern=*" >> .npmrc
-
       - name: Install Dependencies
-        run: pnpm install
+        run: npm install
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
 
       - name: Build Project
-        run: pnpm build
+        run: npm run build
 
       - name: Prepare Standalone Directory
         run: |
           cp -r public .next/standalone/
           cp -r .next/static .next/standalone/.next/
-          mkdir -p .next/standalone/node_modules
-          cp -rL node_modules/@swc .next/standalone/node_modules/ || true
           cd .next/standalone
           zip -r ../../deploy.zip .
           cd ../../

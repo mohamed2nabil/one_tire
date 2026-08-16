@@ -29,6 +29,12 @@ jobs:
         run: |
           cp -r public .next/standalone/
           cp -r .next/static .next/standalone/.next/
+          
+          # Fix Next.js file tracer dropping non-native Prisma engines
+          mkdir -p .next/standalone/node_modules/
+          cp -r node_modules/.prisma .next/standalone/node_modules/ || true
+          cp -r node_modules/@prisma .next/standalone/node_modules/ || true
+          
           cd .next/standalone
           zip -r ../../deploy.zip .
           cd ../../

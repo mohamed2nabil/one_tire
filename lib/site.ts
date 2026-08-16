@@ -5,7 +5,7 @@ export const site = {
   phoneDisplay: '057 364 9433',
   phoneTel: '+966573649433',
   whatsapp: 'https://wa.me/966573649433',
-  cities: ['الدمام', 'الخبر', 'الجبيل'],
+  cities: ['الرياض', 'الدمام', 'الخبر', 'الجبيل'],
 } as const
 
 export const nav = [

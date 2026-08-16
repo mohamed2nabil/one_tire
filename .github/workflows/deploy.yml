@@ -33,29 +33,53 @@ jobs:
           zip -r ../../deploy.zip .
           cd ../../
 
-      - name: Upload zip to cPanel via SCP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.CPANEL_HOST }}
-          username: ${{ secrets.CPANEL_USERNAME }}
-          key: ${{ secrets.CPANEL_SSH_KEY }}
-          passphrase: ${{ secrets.CPANEL_SSH_PASSPHRASE }}
-          port: 7195
-          timeout: 10m
-          source: "deploy.zip"
-          target: "/home/onetirec/apps/one-tire"
-
-      - name: Unzip and restart app via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.CPANEL_HOST }}
-          username: ${{ secrets.CPANEL_USERNAME }}
-          key: ${{ secrets.CPANEL_SSH_KEY }}
-          passphrase: ${{ secrets.CPANEL_SSH_PASSPHRASE }}
-          port: 7195
-          script: |
-            cd /home/onetirec/apps/one-tire
-            unzip -o deploy.zip
-            rm deploy.zip
-            mkdir -p tmp
-            touch tmp/restart.txt
+      - name: Upload and Restart via Native SSH/SCP using Expect
+        env:
+          HOST: ${{ secrets.CPANEL_HOST }}
+          USER: ${{ secrets.CPANEL_USERNAME }}
+          SSH_KEY: ${{ secrets.CPANEL_SSH_KEY }}
+          PASSPHRASE: ${{ secrets.CPANEL_SSH_PASSPHRASE }}
+        run: |
+          sudo apt-get install -y expect
+          
+          # Save SSH Key
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+          
+          # Create expect script for SCP
+          cat << 'EOF' > scp.exp
+          #!/usr/bin/expect -f
+          set timeout -1
+          set passphrase $env(PASSPHRASE)
+          spawn scp -P 7195 -i ~/.ssh/id_rsa deploy.zip $env(USER)@$env(HOST):/home/onetirec/apps/one-tire/
+          expect {
+            "Enter passphrase for key" {
+              send "$passphrase\r"
+              exp_continue
+            }
+            eof
+          }
+          EOF
+          chmod +x scp.exp
+          
+          # Create expect script for SSH
+          cat << 'EOF' > ssh.exp
+          #!/usr/bin/expect -f
+          set timeout -1
+          set passphrase $env(PASSPHRASE)
+          spawn ssh -p 7195 -i ~/.ssh/id_rsa $env(USER)@$env(HOST) "cd /home/onetirec/apps/one-tire && unzip -o deploy.zip && rm deploy.zip && mkdir -p tmp && touch tmp/restart.txt"
+          expect {
+            "Enter passphrase for key" {
+              send "$passphrase\r"
+              exp_continue
+            }
+            eof
+          }
+          EOF
+          chmod +x ssh.exp
+          
+          # Run scripts
+          ./scp.exp
+          ./ssh.exp

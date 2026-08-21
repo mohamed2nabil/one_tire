@@ -41,19 +41,7 @@ model User {
   @@map("user")
 }
 
-model ServiceRequest {
-  id          Int      @id @default(autoincrement())
-  name        String
-  phone       String
-  location    String   // e.g., "Dammam", "Khobar", "Jubail"
-  serviceType String   // e.g., "Tire Change", "Battery", "TPMS"
-  status      String   @default("PENDING") // PENDING, ASSIGNED, COMPLETED
-  assignedTo  String?  // Name or UID of technician
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
-  @@map("servicerequest")
-}
 
 model ContentItem {
   id              Int         @id @default(autoincrement())

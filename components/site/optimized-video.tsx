@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
@@ -28,15 +28,16 @@ export function OptimizedVideo({ src, className }: OptimizedVideoProps) {
   }, [isIntersecting, reducedMotion]);
 
   return (
-    <div ref={containerRef as RefObject<HTMLDivElement>} className="relative w-full h-full">
+    <div className="relative w-full h-full flex items-center justify-center">
       <video
         ref={videoRef}
         src={reducedMotion ? undefined : src}
         className={className}
-        preload="metadata"
+        preload="auto"
         playsInline
         muted
         loop
+        autoPlay
       />
     </div>
   );

@@ -68,7 +68,7 @@ export async function Blog() {
           {posts.map((p) => (
             <Link
               key={p.id}
-              href={p.slug !== '#' ? `/blog/${p.slug}` : '#'}
+              href={p.slug !== '#' ? `/blog/${p.id}` : '#'}
               className="group overflow-hidden rounded-3xl border border-border bg-card hover:border-primary/50 transition-colors"
             >
               <div className="relative aspect-[16/10] overflow-hidden bg-muted">

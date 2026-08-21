@@ -1,5 +1,5 @@
 export const site = {
-  brandAr: 'تواير ون',
+  brandAr: 'وان تاير',
   brandEn: 'ONE TIRE',
   tagline: 'وصلتك أينما كنت',
   phoneDisplay: '057 364 9433',
@@ -12,7 +12,8 @@ export const nav = [
   { id: 'why', label: 'لماذا نحن', href: '/#why' },
   { id: 'services', label: 'خدماتنا', href: '/#services' },
   { id: 'offers', label: 'العروض', href: '/offers' },
-  { id: 'coverage', label: 'مناطق التغطية', href: '/#coverage' },
+  { id: 'coverage', label: 'أماكن التغطية', href: '/#coverage' },
+  { id: 'reviews', label: 'التقييمات', href: '/#reviews' },
+  { id: 'blog', label: 'المدونة', href: '/blog' },
   { id: 'contact', label: 'تواصل معنا', href: '/#contact' },
 ] as const
-

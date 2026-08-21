@@ -39,7 +39,7 @@ export default async function BlogListPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {posts.map((post) => (
-                <Link key={post.id} href={`/blog/${post.slug}`} className="group h-full">
+                <Link key={post.id} href={`/blog/${post.id}`} className="group h-full">
                   <Card className="h-full overflow-hidden hover:shadow-lg transition-all duration-300 border-border/50 hover:border-primary/50 bg-card rounded-3xl">
                     <div className="relative aspect-[16/10] w-full bg-muted overflow-hidden">
                       {post.coverImage && (

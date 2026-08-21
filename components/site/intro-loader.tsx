@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
@@ -26,10 +26,10 @@ export function IntroLoader({ isReady = true }: IntroLoaderProps) {
         onComplete: () => setDone(true),
       })
       tl.set('.beam', { opacity: 0, scaleX: 0.2 })
-        .to('.io-brand', { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 0.1)
-        .to('.beam', { opacity: 1, scaleX: 1, duration: 0.9, ease: 'power2.out' }, 0.3)
-        .to('.io-flood', { opacity: 1, duration: 0.5, ease: 'power2.in' }, 0.8)
-        .to('.io-root', { opacity: 0, duration: 0.7, ease: 'power2.inOut' }, 1.3)
+        .to('.io-brand', { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }, 0)
+        .to('.beam', { opacity: 1, scaleX: 1, duration: 0.4, ease: 'power2.out' }, 0.1)
+        .to('.io-flood', { opacity: 1, duration: 0.2, ease: 'power2.in' }, 0.3)
+        .to('.io-root', { opacity: 0, duration: 0.3, ease: 'power2.inOut' }, 0.5)
     }, root)
 
     return () => ctx.revert()

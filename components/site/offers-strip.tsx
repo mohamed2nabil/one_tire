@@ -49,7 +49,7 @@ export async function OffersStrip({ locale = 'ar' }: { locale?: Locale }) {
           {offers.map((offer) => (
             <Link
               key={offer.id}
-              href={`/blog/${offer.slug}`}
+              href={`/offers/${offer.id}`}
               className="group overflow-hidden rounded-3xl border border-border bg-card hover:border-primary/50 transition-all duration-300 hover:shadow-lg"
             >
               <div className="relative aspect-[16/10] overflow-hidden bg-muted">

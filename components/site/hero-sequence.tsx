@@ -15,9 +15,9 @@ const PATH_PREFIX = '/Vehicle_driving_forward_smoothly_1080p_202607230031_frames
 export function HeroSequence() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const reducedMotion = useReducedMotion()
-  const isMobileDev = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
-  const shouldSkipSequence = reducedMotion || isMobileDev
+  const shouldSkipSequence = reducedMotion
   const [isReady, setIsReady] = useState(false)
+  const imagesRef = useRef<Map<number, HTMLImageElement>>(new Map())
   
   useEffect(() => {
     if (shouldSkipSequence) {
@@ -30,88 +30,85 @@ export function HeroSequence() {
     const context = canvas.getContext('2d', { alpha: false }) // Optimize canvas context
     if (!context) return
 
-    // Adaptive Quality: If mobile/low-end, load every 2nd frame
+    // Adaptive Quality: If mobile/low-end, load fewer frames to prevent out-of-memory and boost performance
     const isMobile = window.innerWidth < 768
-    const frameStep = isMobile ? 2 : 1
+    const frameStep = isMobile ? 3 : 1
     const activeFrames: number[] = []
     
     for (let i = 1; i <= TOTAL_FRAMES; i += frameStep) {
       activeFrames.push(i)
     }
 
-    const images: Record<number, HTMLImageElement> = {}
     const sequence = { frameIndex: 0 }
-    
     let isDestroyed = false
+    const preloadBuffer = isMobile ? 5 : 10
 
-    const render = () => {
-      const frameNum = activeFrames[Math.floor(sequence.frameIndex)]
-      const img = images[frameNum]
-      if (img && img.complete) {
-        const scale = Math.max(canvas.width / img.width, canvas.height / img.height)
-        const x = (canvas.width / 2) - (img.width / 2) * scale
-        const y = (canvas.height / 2) - (img.height / 2) * scale
-        
-        context.drawImage(img, x, y, img.width * scale, img.height * scale)
-      }
-    }
-
-    // Load a specific frame
-    const loadFrame = (frameNum: number): Promise<void> => {
-      return new Promise((resolve) => {
-        if (images[frameNum]) return resolve()
-        
-        const img = new Image()
+    const loadFrame = async (frameNum: number): Promise<HTMLImageElement> => {
+      if (imagesRef.current.has(frameNum)) return imagesRef.current.get(frameNum)!
+      
+      return new Promise((resolve, reject) => {
+        const img = new window.Image()
+        img.src = `${PATH_PREFIX}${String(frameNum).padStart(3, '0')}.jpg`
         img.onload = () => {
-          images[frameNum] = img
-          resolve()
+          imagesRef.current.set(frameNum, img)
+          resolve(img)
         }
-        img.onerror = () => {
-          // If frame fails, just resolve to not block pipeline
-          resolve()
-        }
-        const indexStr = frameNum.toString().padStart(3, '0')
-        img.src = `${PATH_PREFIX}${indexStr}.jpg`
+        img.onerror = reject
       })
     }
 
-    let resizeCanvas: () => void
+    const render = () => {
+      const frameNum = activeFrames[Math.floor(sequence.frameIndex)]
+      const img = imagesRef.current.get(frameNum)
+      if (img && img.complete) {
+        context.clearRect(0, 0, canvas.width, canvas.height)
+        
+        // draw full cover
+        const scale = Math.max(canvas.width / img.width, canvas.height / img.height)
+        const w = img.width * scale
+        const h = img.height * scale
+        const x = (canvas.width - w) / 2
+        const y = (canvas.height - h) / 2
+        
+        context.drawImage(img, x, y, w, h)
+      }
+    }
 
-    // Progressive Loading Strategy
+    const resizeCanvas = () => {
+      if (!canvas) return
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+      render()
+    }
+    
+    window.addEventListener('resize', resizeCanvas)
+    resizeCanvas()
+
     const loadSequence = async () => {
-      // 1. Load the first frame immediately for LCP
-      await loadFrame(activeFrames[0])
-      if (isDestroyed) return
-      
-      // Initialize canvas size and render first frame
-      resizeCanvas = () => {
-        const parent = canvas.parentElement
-        if (parent) {
-          // Double resolution for retina displays if desktop, else normal
-          const dpr = isMobile ? 1 : (window.devicePixelRatio || 1)
-          canvas.width = parent.clientWidth * dpr
-          canvas.height = parent.clientHeight * dpr
-          context.scale(dpr, dpr)
-          render()
+      try {
+        // Load first frame immediately
+        const firstFrame = activeFrames[0]
+        await loadFrame(firstFrame)
+        render()
+        setTimeout(() => setIsReady(true), 50)
+
+        // Load buffer
+        for (let i = 1; i < Math.min(preloadBuffer, activeFrames.length); i++) {
+          await loadFrame(activeFrames[i])
         }
-      }
-      window.addEventListener('resize', resizeCanvas)
-      resizeCanvas()
-      
-      // Mark as ready to dismiss cinematic loader
-      setIsReady(true)
 
-      // 2. Load next 15% of frames for initial scroll anticipation
-      const initialBatchCount = Math.floor(activeFrames.length * 0.15)
-      for (let i = 1; i < initialBatchCount; i++) {
-        await loadFrame(activeFrames[i])
-        if (isDestroyed) return
-      }
-
-      // 3. Load the rest lazily
-      for (let i = initialBatchCount; i < activeFrames.length; i++) {
-        await loadFrame(activeFrames[i])
-        if (isDestroyed) return
+        // Lazy load the rest non-blocking using .decode()
+        for (let i = preloadBuffer; i < activeFrames.length; i++) {
+          if (isDestroyed) break
+          try {
+            const img = new window.Image()
+            img.src = `${PATH_PREFIX}${String(activeFrames[i]).padStart(3, '0')}.jpg`
+            await img.decode()
+            imagesRef.current.set(activeFrames[i], img)
+          } catch(e) {}
+        }
+      } catch (err) {
+        setIsReady(true)
       }
     }
 
@@ -124,10 +121,9 @@ export function HeroSequence() {
       ease: 'none',
       scrollTrigger: {
         trigger: '#hero',
-        pin: true,
         start: 'top top',
-        end: '+=200%',
-        scrub: 1, // Smooth scrubbing
+        end: 'bottom top',
+        scrub: 0.5,
         fastScrollEnd: true,
       },
       onUpdate: render,

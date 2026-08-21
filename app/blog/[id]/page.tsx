@@ -12,10 +12,16 @@ import { Locale } from '@/lib/dictionaries';
 
 export const dynamic = 'force-dynamic';
 
-export default async function BlogPostPage(props: { params: Promise<{ slug: string }> }) {
+export default async function BlogPostPage(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
+  const id = parseInt(params.id);
+  
+  if (isNaN(id)) {
+    notFound();
+  }
+
   const post = await db.contentItem.findUnique({
-    where: { slug: params.slug }
+    where: { id: id }
   });
 
   if (!post || (post.status !== 'PUBLISHED' && process.env.NODE_ENV !== 'development')) {
@@ -58,7 +64,7 @@ export default async function BlogPostPage(props: { params: Promise<{ slug: stri
 
           <div 
             className="prose prose-lg dark:prose-invert mx-auto max-w-3xl prose-headings:font-display prose-headings:font-bold prose-a:text-primary prose-img:rounded-2xl text-right prose-p:leading-relaxed prose-p:text-lg" 
-            dangerouslySetInnerHTML={{ __html: post.content }} 
+            dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br/>') }} 
           />
         </article>
       </div>

@@ -43,13 +43,8 @@ export async function Hero({ locale = 'ar' }: { locale?: Locale }) {
       {/* Content */}
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center justify-center px-5 pt-28 text-center sm:px-8">
         
-        <span className="hero-fade-1 inline-flex items-center gap-2 rounded-full border border-border bg-background/40 px-4 py-1.5 text-xs font-semibold tracking-wide backdrop-blur-md">
-          <span className="size-2 rounded-full bg-primary" />
-          {dict.tag}
-        </span>
-
-        <h1 className="mt-8 text-balance font-display text-5xl font-extrabold leading-[1.1] tracking-tight sm:text-7xl lg:text-8xl text-shadow-sm text-foreground">
-          <span className="hero-fade-2 block">{title1}</span>
+        <h1 className="hero-fade-2 mt-8 text-balance font-display text-5xl font-extrabold leading-[1.1] tracking-tight sm:text-7xl lg:text-8xl text-shadow-sm text-foreground">
+          <span className="block">{title1}</span>
           <span className="hero-fade-3 block text-primary mt-2">{title2}</span>
         </h1>
 

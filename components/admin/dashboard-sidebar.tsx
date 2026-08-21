@@ -22,11 +22,6 @@ const navigation = [
     icon: LayoutDashboard,
   },
   {
-    name: 'طلبات الخدمة',
-    href: '/admin/orders',
-    icon: Inbox,
-  },
-  {
     name: 'الرسائل الواردة',
     href: '/admin/messages',
     icon: Inbox,

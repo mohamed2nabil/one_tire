@@ -60,7 +60,7 @@ export default function BaansherMtagelPage() {
         {/* Benefits Section */}
         <section className="py-16 bg-muted/40">
           <div className="container mx-auto max-w-5xl px-5">
-            <h2 className="text-3xl font-bold text-center mb-12">لماذا تختار خدمة بنشر متنقل من تواير ون؟</h2>
+            <h2 className="text-3xl font-bold text-center mb-12">لماذا تختار خدمة بنشر متنقل من وان تاير؟</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="rounded-2xl border bg-card p-6 text-center space-y-4">
                 <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">

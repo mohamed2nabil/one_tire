@@ -35,8 +35,62 @@ export default async function Page() {
   const locale = (cookieStore.get('NEXT_LOCALE')?.value || 'ar') as Locale
   const settings = await getCachedSettings();
 
+  let ratingValue: string | null = null;
+  let reviewCount: string | null = null;
+
+  try {
+    const stats = await db.testimonial.aggregate({
+      where: {
+        isVisible: true
+      },
+      _avg: { rating: true },
+      _count: { id: true }
+    });
+
+    if (stats._count.id > 0) {
+      ratingValue = stats._avg.rating ? stats._avg.rating.toFixed(1) : "5.0";
+      reviewCount = stats._count.id.toString();
+    }
+  } catch (e) {
+    console.error("Failed to fetch aggregate rating for SEO", e);
+  }
+
+  const autoRepairSchema: any = {
+    "@context": "https://schema.org",
+    "@type": "AutoRepair",
+    name: "وان تاير — خدمة الإطارات المتنقلة",
+    description: "خدمة متنقلة لتغيير الإطارات والإصلاح الطارئ في المنطقة الشرقية والرياض",
+    telephone: "+966573649433",
+    url: "https://one-tire.com",
+    image: "https://one-tire.com/images/site/one-tire-van.jpeg",
+    logo: "https://one-tire.com/android-chrome-512x512.png",
+    areaServed: ["الرياض", "الدمام", "الخبر", "الجبيل", "الظهران"]
+  };
+
+  if (ratingValue && reviewCount) {
+    autoRepairSchema.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: ratingValue,
+      reviewCount: reviewCount
+    };
+  }
+
+  const webSiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "وان تاير",
+    alternateName: ["ONE TIRE"],
+    url: "https://one-tire.com/"
+  };
+
+  const schemaData = [autoRepairSchema, webSiteSchema];
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+      />
       <SmoothScroll />
 
       <SiteNav locale={locale} />

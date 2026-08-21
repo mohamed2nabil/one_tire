@@ -60,9 +60,9 @@ export default async function MediaPage() {
             />
             <ImagePickerField 
               name="cta_image" 
-              label="صورة خلفية قسم التواصل (أسفل الموقع)" 
+              label="صورة قسم التواصل (أسفل الموقع)" 
               defaultValue={settings.cta_image || ''} 
-              placeholder="/images/cta-bg.jpg" 
+              placeholder="/images/site/one-tire-van.jpeg" 
             />
             <ImagePickerField 
               name="seo_og_image" 

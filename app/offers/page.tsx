@@ -22,7 +22,7 @@ export default async function OffersPage() {
   }
 
   const settings = await getCachedSettings();
-  const title = settings.offers_title_ar || 'عروض وخصومات تواير ون الحصرية';
+  const title = settings.offers_title_ar || 'عروض وخصومات وان تاير الحصرية';
   const desc = settings.offers_desc_ar || 'اكتشف أقوى العروض والخصومات على خدمات كفرات السيارات، تبديل الإطارات، وتغيير زيت وسيفون السيارة عند البيت.';
 
   // Top 3 offers for the Hero Slider
@@ -105,7 +105,7 @@ export default async function OffersPage() {
 
                       <div className="pt-2">
                         <Link 
-                          href={`/blog/${post.slug}`} 
+                          href={`/offers/${post.id}`} 
                           className="inline-flex items-center gap-2 bg-primary hover:bg-primary/95 text-primary-foreground font-bold px-6 py-3 rounded-full text-sm transition-all hover:translate-x-[-4px] shadow-lg shadow-primary/20"
                         >
                           احصل على العرض الآن
@@ -143,7 +143,7 @@ export default async function OffersPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {(sliderOffers.length > 0 ? gridOffers : posts).map((post) => (
-                  <Link key={post.id} href={`/blog/${post.slug}`} className="group h-full block">
+                  <Link key={post.id} href={`/offers/${post.id}`} className="group h-full block">
                     <Card className="h-full overflow-hidden hover:shadow-xl transition-all duration-300 border-primary/10 hover:border-primary/30 bg-card rounded-3xl relative">
                       
                       {/* Percent Tag */}

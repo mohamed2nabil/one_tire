@@ -23,7 +23,7 @@ export default async function OffersPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">إدارة العروض</h1>
           <p className="text-muted-foreground mt-1">
-            إنشاء وتعديل ونشر العروض الترويجية والخصومات لموقع تواير ون.
+            إنشاء وتعديل ونشر العروض الترويجية والخصومات لموقع وان تاير.
           </p>
         </div>
         <Link href="/admin/offers/new" className={buttonVariants({ variant: 'default' })}>

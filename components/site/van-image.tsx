@@ -29,7 +29,7 @@ export function VanImage({
 
       <Image
         src={src}
-        alt="سيارة تواير ون المتنقلة لخدمة الإطارات"
+        alt="سيارة وان تاير المتنقلة لخدمة الإطارات"
         width={1600}
         height={860}
         priority={priority}

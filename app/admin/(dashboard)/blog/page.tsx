@@ -21,7 +21,7 @@ export default async function BlogPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">إدارة المدونة</h1>
           <p className="text-muted-foreground mt-1">
-            إنشاء وتعديل ونشر المقالات والأخبار لموقع تواير ون.
+            إنشاء وتعديل ونشر المقالات والأخبار لموقع وان تاير.
           </p>
         </div>
         <Link href="/admin/blog/new" className={buttonVariants({ variant: 'default' })}>

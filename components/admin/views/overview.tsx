@@ -23,7 +23,7 @@ export function OverviewPage({
       <div>
         <h1 className="text-3xl font-bold tracking-tight">نظرة عامة</h1>
         <p className="text-muted-foreground mt-1">
-          مرحباً بك مجدداً في لوحة تحكم تواير ون. إليك تفاصيل العمليات وإحصائيات محركات البحث (Google Search Console).
+          مرحباً بك مجدداً في لوحة تحكم وان تاير. إليك تفاصيل العمليات وإحصائيات محركات البحث (Google Search Console).
         </p>
       </div>
 

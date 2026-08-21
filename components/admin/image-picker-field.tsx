@@ -27,15 +27,15 @@ export function ImagePickerField({ name, label, defaultValue = '', placeholder =
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 rounded-xl border p-4 bg-muted/40">
         {/* Preview image */}
-        <div className="relative aspect-square w-24 shrink-0 overflow-hidden rounded-lg border bg-muted flex items-center justify-center">
-          {value ? (
+        <div className="relative aspect-[16/9] w-32 sm:w-48 shrink-0 overflow-hidden rounded-lg border bg-muted flex items-center justify-center shadow-sm">
+          {(value || placeholder) ? (
             <img
-              src={value}
+              src={value || (placeholder.startsWith('/') ? placeholder : `/${placeholder}`)}
               alt="Preview"
               className="object-cover w-full h-full"
             />
           ) : (
-            <ImageIcon className="h-8 w-8 text-muted-foreground" />
+            <ImageIcon className="h-8 w-8 text-muted-foreground opacity-50" />
           )}
         </div>
 

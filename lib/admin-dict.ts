@@ -1,6 +1,6 @@
 export const adminDict = {
   sidebar: {
-    title: 'تواير ون',
+    title: 'وان تاير',
     panel: 'لوحة التحكم',
     overview: 'لوحة التحكم',
     requests: 'طلبات الخدمة',

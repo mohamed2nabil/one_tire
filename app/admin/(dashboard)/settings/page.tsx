@@ -87,7 +87,7 @@ export default async function SettingsAdminPage() {
               <Label>عنوان الموقع - عربي (Title Tag)</Label>
               <Input 
                 name="seo_title_ar" 
-                defaultValue={settings.seo_title_ar || 'تواير ون | خدمة الإطارات المتنقلة الفاخرة في المنطقة الشرقية'} 
+                defaultValue={settings.seo_title_ar || 'وان تاير | خدمة الإطارات المتنقلة الفاخرة في المنطقة الشرقية'} 
                 className="text-right" 
               />
             </div>
